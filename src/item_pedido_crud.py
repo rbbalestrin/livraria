@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 from utils import get_connection
 
 class ItemPedidoCRUD:
@@ -64,8 +64,31 @@ class ItemPedidoCRUD:
         try:
             cursor.execute("SELECT * FROM ITEM_PEDIDO")
             rows = cursor.fetchall()
+
+            # Criar nova janela para mostrar os dados
+            janela_visualizacao = tk.Toplevel(self.janela)
+            janela_visualizacao.title("Itens do Pedido Cadastrados")
+            janela_visualizacao.geometry("600x350")
+
+            # Criar Treeview para mostrar os dados em tabela
+            tree = ttk.Treeview(janela_visualizacao, columns=("PedidoID", "LivroID", "Quantidade", "PrecoUnitario"), show="headings")
+            tree.heading("PedidoID", text="ID do Pedido")
+            tree.heading("LivroID", text="ID do Livro")
+            tree.heading("Quantidade", text="Quantidade")
+            tree.heading("PrecoUnitario", text="Preço Unitário")
+
+            # Definir tamanhos das colunas
+            tree.column("PedidoID", width=100)
+            tree.column("LivroID", width=100)
+            tree.column("Quantidade", width=100)
+            tree.column("PrecoUnitario", width=100)
+
+            # Adicionar dados à tabela
             for row in rows:
-                print(row)
+                tree.insert("", "end", values=row)
+
+            tree.pack(fill="both", expand=True)
+
         except sqlite3.Error as e:
             messagebox.showerror("Erro", f"Ocorreu um erro: {e}")
         finally:
