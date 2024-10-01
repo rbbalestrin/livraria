@@ -6,7 +6,7 @@ class ClienteCRUD:
     def __init__(self, root):
         self.janela = tk.Toplevel(root)
         self.janela.title("Gerenciar Clientes")
-        self.janela.geometry("400x400")
+        self.janela.geometry("400x500")
 
         # Labels e Widgets de Entrada
         tk.Label(self.janela, text="Primeiro Nome").grid(row=0, column=0, padx=10, pady=5)
@@ -35,6 +35,10 @@ class ClienteCRUD:
 
         self.btn_visualizar = tk.Button(self.janela, text="Visualizar Clientes", command=self.visualizar_clientes, width=20)
         self.btn_visualizar.grid(row=6, column=0, columnspan=2, pady=10)
+
+        # Botão para visualizar o código-fonte
+        self.btn_ver_codigo = tk.Button(self.janela, text="Visualizar Código", command=self.visualizar_codigo, width=20)
+        self.btn_ver_codigo.grid(row=7, column=0, columnspan=2, pady=10)
 
     def adicionar_cliente(self):
         primeiro_nome = self.entry_primeiro_nome.get()
@@ -74,7 +78,7 @@ class ClienteCRUD:
             # Criar nova janela para mostrar os dados
             janela_visualizacao = tk.Toplevel(self.janela)
             janela_visualizacao.title("Clientes Cadastrados")
-            janela_visualizacao.geometry("600x400")
+            janela_visualizacao.geometry("600x300")
 
             # Criar Treeview para mostrar os dados em tabela
             tree = ttk.Treeview(janela_visualizacao, columns=("ClienteID", "PrimeiroNome", "Sobrenome", "Email", "Telefone", "Endereco"), show="headings")
@@ -103,3 +107,21 @@ class ClienteCRUD:
             messagebox.showerror("Erro", f"Ocorreu um erro: {e}")
         finally:
             connection.close()
+
+    def visualizar_codigo(self):
+        janela_codigo = tk.Toplevel(self.janela)
+        janela_codigo.title("Código Fonte - Cliente CRUD")
+        janela_codigo.geometry("700x500")
+
+        # Caixa de texto para exibir o código-fonte
+        txt_codigo = tk.Text(janela_codigo, wrap="word")
+        txt_codigo.pack(expand=True, fill="both")
+
+        # Carregar e exibir o código-fonte
+        try:
+            with open(__file__, 'r', encoding='utf-8') as f:
+                codigo = f.read()
+                txt_codigo.insert(tk.END, codigo)
+        except Exception as e:
+            messagebox.showerror("Erro", f"Erro ao carregar o código-fonte: {e}")
+

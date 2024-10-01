@@ -36,6 +36,9 @@ class LivroCRUD:
         self.btn_visualizar = tk.Button(self.janela, text="Visualizar Livros", command=self.visualizar_livros, width=20)
         self.btn_visualizar.grid(row=6, column=0, columnspan=2, pady=10)
 
+        self.btn_ver_codigo = tk.Button(self.janela, text="Visualizar Código", command=self.visualizar_codigo, width=20)
+        self.btn_ver_codigo.grid(row=7, column=0, columnspan=2, pady=10)
+
     def adicionar_livro(self):
         titulo = self.entry_titulo.get()
         editora_id = self.entry_editora_id.get()
@@ -103,3 +106,20 @@ class LivroCRUD:
             messagebox.showerror("Erro", f"Ocorreu um erro: {e}")
         finally:
             connection.close()
+
+    def visualizar_codigo(self):
+        janela_codigo = tk.Toplevel(self.janela)
+        janela_codigo.title("Código Fonte - Livro CRUD")
+        janela_codigo.geometry("700x500")
+
+        # Caixa de texto para exibir o código-fonte
+        txt_codigo = tk.Text(janela_codigo, wrap="word")
+        txt_codigo.pack(expand=True, fill="both")
+
+        # Carregar e exibir o código-fonte
+        try:
+            with open(__file__, 'r', encoding='utf-8') as f:
+                codigo = f.read()
+                txt_codigo.insert(tk.END, codigo)
+        except Exception as e:
+            messagebox.showerror("Erro", f"Erro ao carregar o código-fonte: {e}")

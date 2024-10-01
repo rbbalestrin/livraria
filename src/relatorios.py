@@ -18,6 +18,9 @@ class Relatorios:
         self.btn_pedidos_por_periodo = tk.Button(self.janela, text="Pedidos por Período", command=self.relatorio_pedidos_por_periodo, width=30)
         self.btn_pedidos_por_periodo.pack(pady=10)
 
+        self.btn_ver_codigo = tk.Button(self.janela, text="Visualizar Código", command=self.visualizar_codigo, width=20)
+        self.btn_ver_codigo.grid(row=5, column=0, columnspan=2, pady=10)
+
     def relatorio_pedidos_por_cliente(self):
         # Entrada do cliente ID
         janela_entrada = tk.Toplevel(self.janela)
@@ -149,3 +152,21 @@ class Relatorios:
                 connection.close()
 
         tk.Button(janela_entrada, text="Gerar Relatório", command=gerar_relatorio).pack(pady=10)
+
+    def visualizar_codigo(self):
+        janela_codigo = tk.Toplevel(self.janela)
+        janela_codigo.title("Código Fonte - Relatorios")
+        janela_codigo.geometry("700x500")
+
+        # Caixa de texto para exibir o código-fonte
+        txt_codigo = tk.Text(janela_codigo, wrap="word")
+        txt_codigo.pack(expand=True, fill="both")
+
+        # Carregar e exibir o código-fonte
+        try:
+            with open(__file__, 'r', encoding='utf-8') as f:
+                codigo = f.read()
+                txt_codigo.insert(tk.END, codigo)
+        except Exception as e:
+            messagebox.showerror("Erro", f"Erro ao carregar o código-fonte: {e}")
+

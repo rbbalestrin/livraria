@@ -28,6 +28,10 @@ class EditoraCRUD:
         self.btn_visualizar = tk.Button(self.janela, text="Visualizar Editoras", command=self.visualizar_editoras, width=20)
         self.btn_visualizar.grid(row=4, column=0, columnspan=2, pady=10)
 
+        self.btn_ver_codigo = tk.Button(self.janela, text="Visualizar Código", command=self.visualizar_codigo, width=20)
+        self.btn_ver_codigo.grid(row=5, column=0, columnspan=2, pady=10)
+
+
     def adicionar_editora(self):
         nome = self.entry_nome.get()
         endereco = self.entry_endereco.get()
@@ -87,3 +91,18 @@ class EditoraCRUD:
             messagebox.showerror("Erro", f"Ocorreu um erro: {e}")
         finally:
             connection.close()
+
+    def visualizar_codigo(self):
+        janela_codigo = tk.Toplevel(self.janela)
+        janela_codigo.title("Código Fonte - Editoras CRUD")
+        janela_codigo.geometry("700x500")
+
+        txt_codigo = tk.Text(janela_codigo, wrap="word")
+        txt_codigo.pack(expand=True, fill="both")
+
+        try:
+            with open(__file__, 'r', encoding='utf-8') as f:
+                codigo = f.read()
+                txt_codigo.insert(tk.END, codigo)
+        except Exception as e:
+            messagebox.showerror("Erro", f"Erro ao carregar o código-fonte: {e}")
