@@ -5,6 +5,7 @@ from editora_crud import EditoraCRUD
 from livro_crud import LivroCRUD
 from pedido_crud import PedidoCRUD
 from item_pedido_crud import ItemPedidoCRUD
+from relatorios import Relatorios
 
 class SistemaLivrariaApp:
     def __init__(self, root):
@@ -12,7 +13,7 @@ class SistemaLivrariaApp:
         self.root.title("Sistema de Livraria")
 
         # Tamanho da janela
-        self.root.geometry("400x400")
+        self.root.geometry("400x500")
 
         # Botões para cada entidade
         self.btn_gerenciar_clientes = tk.Button(self.root, text="Gerenciar Clientes", command=self.abrir_cliente_crud, width=30, height=2)
@@ -33,6 +34,10 @@ class SistemaLivrariaApp:
         self.btn_gerenciar_itens_pedido = tk.Button(self.root, text="Gerenciar Itens do Pedido", command=self.abrir_item_pedido_crud, width=30, height=2)
         self.btn_gerenciar_itens_pedido.pack(pady=10)
 
+        # Botão para relatórios
+        self.btn_gerar_relatorios = tk.Button(self.root, text="Gerar Relatórios", command=self.abrir_relatorios, width=30, height=2)
+        self.btn_gerar_relatorios.pack(pady=10)
+
     def abrir_cliente_crud(self):
         ClienteCRUD(self.root)
 
@@ -50,6 +55,9 @@ class SistemaLivrariaApp:
 
     def abrir_item_pedido_crud(self):
         ItemPedidoCRUD(self.root)
+
+    def abrir_relatorios(self):
+        Relatorios(self.root)
 
 if __name__ == "__main__":
     root = tk.Tk()
