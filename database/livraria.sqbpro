@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="C:/Users/renan_j/Downloads/livraria.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="1737"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title="AUTOR" custom_title="0" dock_id="1" table="4,5:mainAUTOR"/><dock_state state="000000ff00000000fd00000001000000020000000000000000fc0100000001fb000000160064006f0063006b00420072006f00770073006500310100000000ffffffff0000011e00ffffff000000000000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings/></tab_browse><tab_sql><sql name="SQL 1*">-- CLIENTE table
+CREATE TABLE CLIENTE (
+    ClienteID INTEGER PRIMARY KEY,
+    PrimeiroNome TEXT NOT NULL,
+    Sobrenome TEXT NOT NULL,
+    Email TEXT UNIQUE NOT NULL,
+    Telefone TEXT,
+    Endereco TEXT
+);
+
+-- AUTOR table
+CREATE TABLE AUTOR (
+    AutorID INTEGER PRIMARY KEY,
+    PrimeiroNome TEXT NOT NULL,
+    Sobrenome TEXT NOT NULL,
+    DataNascimento DATE
+);
+
+-- EDITORA table
+CREATE TABLE EDITORA (
+    EditoraID INTEGER PRIMARY KEY,
+    Nome TEXT NOT NULL,
+    Endereco TEXT,
+    Telefone TEXT
+);
+
+-- LIVRO table
+CREATE TABLE LIVRO (
+    LivroID INTEGER PRIMARY KEY,
+    Titulo TEXT NOT NULL,
+    EditoraID INTEGER,
+    DataPublicacao DATE,
+    Preco DECIMAL(10, 2) NOT NULL,
+    QuantidadeEstoque INTEGER NOT NULL,
+    FOREIGN KEY (EditoraID) REFERENCES EDITORA(EditoraID)
+);
+
+-- PEDIDO table
+CREATE TABLE PEDIDO (
+    PedidoID INTEGER PRIMARY KEY,
+    ClienteID INTEGER,
+    DataPedido DATE NOT NULL,
+    ValorTotal DECIMAL(10, 2) DEFAULT 0,
+    FOREIGN KEY (ClienteID) REFERENCES CLIENTE(ClienteID)
+);
+
+-- ITEM_PEDIDO table
+CREATE TABLE ITEM_PEDIDO (
+    PedidoID INTEGER,
+    LivroID INTEGER,
+    Quantidade INTEGER NOT NULL,
+    PrecoUnitario DECIMAL(10, 2) NOT NULL,
+    PRIMARY KEY (PedidoID, LivroID),
+    FOREIGN KEY (PedidoID) REFERENCES PEDIDO(PedidoID),
+    FOREIGN KEY (LivroID) REFERENCES LIVRO(LivroID)
+);
+
+CREATE VIEW View_Livros_Autores AS
+SELECT LIVRO.LivroID, LIVRO.Titulo, AUTOR.PrimeiroNome || ' ' || AUTOR.Sobrenome AS NomeAutor
+FROM LIVRO
+JOIN AUTOR ON LIVRO.LivroID = AUTOR.AutorID;
+
+CREATE VIEW View_Pedidos_Clientes AS
+SELECT PEDIDO.PedidoID, PEDIDO.DataPedido, CLIENTE.PrimeiroNome || ' ' || CLIENTE.Sobrenome AS NomeCliente, PEDIDO.ValorTotal
+FROM PEDIDO
+JOIN CLIENTE ON PEDIDO.ClienteID = CLIENTE.ClienteID;
+
+INSERT INTO CLIENTE (ClienteID, PrimeiroNome, Sobrenome, Email, Telefone, Endereco) VALUES
+(1, 'Maria', 'Silva', 'maria.silva@example.com', '123456789', 'Rua das Flores, 123'),
+(2, 'João', 'Santos', 'joao.santos@example.com', '987654321', 'Avenida Brasil, 456'),
+(3, 'Ana', 'Costa', 'ana.costa@example.com', '555666777', 'Rua Verde, 789');
+
+INSERT INTO AUTOR (AutorID, PrimeiroNome, Sobrenome, DataNascimento) VALUES
+(1, 'Jorge', 'Amado', '1912-08-10'),
+(2, 'Clarice', 'Lispector', '1920-12-10'),
+(3, 'Machado', 'de Assis', '1839-06-21');
+
+INSERT INTO EDITORA (EditoraID, Nome, Endereco, Telefone) VALUES
+(1, 'Editora A', 'Rua Azul, 111', '1122334455'),
+(2, 'Editora B', 'Avenida Principal, 222', '2233445566'),
+(3, 'Editora C', 'Praça Central, 333', '3344556677');
+
+INSERT INTO LIVRO (LivroID, Titulo, EditoraID, DataPublicacao, Pr	eco, QuantidadeEstoque) VALUES
+(1, 'Capitães da Areia', 1, '1937-08-15', 29.90, 50),
+(2, 'A Hora da Estrela', 2, '1977-10-25', 34.90, 30),
+(3, 'Dom Casmurro', 3, '1899-01-01', 39.90, 40),
+(4, 'Memórias Póstumas de Brás Cubas', 3, '1881-03-15', 25.50, 25);
+
+INSERT INTO PEDIDO (PedidoID, ClienteID, DataPedido, ValorTotal) VALUES
+(1, 1, '2024-09-25', 0),
+(2, 2, '2024-09-28', 0),
+(3, 3, '2024-09-30', 0);
+
+INSERT INTO ITEM_PEDIDO (PedidoID, LivroID, Quantidade, PrecoUnitario) VALUES
+(1, 1, 2, 29.90),  -- Cliente 1 comprou 2 unidades do livro 'Capitães da Areia'
+(1, 3, 1, 39.90),  -- Cliente 1 comprou 1 unidade do livro 'Dom Casmurro'
+(2, 2, 1, 34.90),  -- Cliente 2 comprou 1 unidade do livro 'A Hora da Estrela'
+(3, 4, 3, 25.50);  -- Cliente 3 comprou 3 unidades do livro 'Memórias Póstumas de Brás Cubas'
+
+SELECT * FROM View_Pedidos_Clientes
+WHERE NomeCliente LIKE 'Maria';
+
+
+-- Update the trigger to directly update the total value of the order
+CREATE TRIGGER AtualizarPedidoValor AFTER INSERT ON ITEM_PEDIDO
+FOR EACH ROW
+BEGIN
+    UPDATE PEDIDO
+    SET ValorTotal = (
+        SELECT SUM(Quantidade * PrecoUnitario)
+        FROM ITEM_PEDIDO
+        WHERE ITEM_PEDIDO.PedidoID = NEW.PedidoID
+    )
+    WHERE PEDIDO.PedidoID = NEW.PedidoID;
+END;
+
+CREATE TRIGGER AtualizarEstoque AFTER INSERT ON ITEM_PEDIDO
+FOR EACH ROW
+BEGIN
+    UPDATE LIVRO
+    SET QuantidadeEstoque = QuantidadeEstoque - NEW.Quantidade
+    WHERE LivroID = NEW.LivroID;
+END;
+
+
+CREATE FUNCTION TotalEstoque() RETURNS INTEGER
+BEGIN
+    RETURN (SELECT SUM(QuantidadeEstoque) FROM LIVRO);
+END;
+</sql><current_tab id="0"/></tab_sql></sqlb_project>
